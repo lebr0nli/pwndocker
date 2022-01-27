@@ -1,9 +1,9 @@
 FROM phusion/baseimage:master-amd64
-LABEL maintainer="skysider <skysider@163.com>"
+LABEL maintainer="Alan Li"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV TZ Asia/Shanghai
+ENV TZ=Asia/Taipei
 
 RUN dpkg --add-architecture i386 && \
     apt-get -y update && \
@@ -26,12 +26,12 @@ RUN dpkg --add-architecture i386 && \
     ruby \
     ruby-dev \
     tmux \
+    zsh \
     strace \
     ltrace \
     nasm \
     wget \
-    gdb \
-    gdb-multiarch \
+    elfutils \
     netcat \
     socat \
     git \
@@ -42,6 +42,8 @@ RUN dpkg --add-architecture i386 && \
     bison \
     rpm2cpio cpio \
     zstd \
+    libgmp-dev \
+    texinfo \
     tzdata --fix-missing && \
     rm -rf /var/lib/apt/list/*
 
@@ -55,7 +57,7 @@ RUN version=$(curl https://github.com/radareorg/radare2/releases/latest | grep -
 RUN python3 -m pip install -U pip && \
     python3 -m pip install --no-cache-dir \
     ropgadget \
-    pwntools==4.5.1 \
+    pwntools \
     z3-solver \
     smmap2 \
     apscheduler \
@@ -68,6 +70,12 @@ RUN python3 -m pip install -U pip && \
     r2pipe
 
 RUN gem install one_gadget seccomp-tools && rm -rf /var/lib/gems/2.*/cache/*
+
+RUN wget http://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.xz && \
+    tar xf gdb-11.2.tar.xz && \
+    cd gdb-11.2 && \
+    ./configure --with-python=/usr/bin/python3 && make -j8 && make install && \
+    cd .. && rm -rf gdb-11.2 && rm gdb-11.2.tar.xz
 
 RUN git clone --depth 1 https://github.com/pwndbg/pwndbg && \
     cd pwndbg && chmod +x setup.sh && ./setup.sh
@@ -108,5 +116,40 @@ COPY --from=skysider/glibc_builder32:2.27 /glibc/2.27/32 /glibc/2.27/32
 COPY linux_server linux_server64  /ctf/
 
 RUN chmod a+x /ctf/linux_server /ctf/linux_server64
+
+# pwninit
+
+RUN wget https://github.com/io12/pwninit/releases/latest/download/pwninit -P /usr/bin/ && chmod +x /usr/bin/pwninit
+
+COPY pwninit_template.py pwninit_template.py  /ctf/
+
+# copy dotfiles
+
+COPY .vimrc .vimrc  /root/
+
+COPY .zshrc .zshrc  /root/
+
+COPY .p10k.zsh .p10k.zsh  /root/
+
+COPY .tmux.conf .tmux.conf  /root/
+
+# init zinit and plugins
+
+RUN sh -c "$(curl -fsSL https://git.io/zinit-install)"
+
+RUN zsh -ic 'source ~/.zshrc'
+
+RUN zsh -ic 'zinit update'
+
+# manually download gitstatusd for p10k to get rid of "[powerlevel10k] fetching gitstatusd .. [ok]"
+
+RUN wget https://github.com/romkatv/gitstatus/releases/download/v1.5.1/gitstatusd-linux-x86_64.tar.gz && \
+    tar zxvf gitstatusd-linux-x86_64.tar.gz && chmod +x gitstatusd-linux-x86_64 && \
+    mkdir ~/.cache/gitstatus && mv gitstatusd-linux-x86_64 ~/.cache/gitstatus/gitstatusd-linux-x86_64 && \
+    rm gitstatusd-linux-x86_64.tar.gz
+
+# remove potential tmp file
+
+RUN rm -rf /tmp/*
 
 CMD ["/sbin/my_init"]
