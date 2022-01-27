@@ -44,7 +44,7 @@ Modify from [skysider/pwndocker](https://github.com/skysider/pwndocker)
     - `pwng`: aliased to `python solve.py g`
     - `pwnr`: aliased to `python solve.py`
       - If you want to pwn local binary: Run `pwnl` or `./solve.py l`
-      - If you want to pwn with gdb without (debug info): Run `pwng d` or `./solve.py g`
+      - If you want to pwn with gdb without debug info: Run `pwng d` or `./solve.py g`
       - If you want to pwn with gdb and debug info: Run `pwng d` or `./solve.py g d`
       - If you want to pwn the remote binary with debug info: Run `pwnr` or `./solve.py d`
 
