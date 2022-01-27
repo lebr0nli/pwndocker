@@ -35,15 +35,15 @@ Modify from [skysider/pwndocker](https://github.com/skysider/pwndocker)
 - Add support for `pwninit` and using my customize template: `pwninit_template.py`
 
 - Some aliases for faster pwn
-  - pwninit: bind libc and create `solve.py` with my customize template
+  - `pwninit`: bind libc and create `solve.py` with my customize template
     - argv[1] == **l** : pwn local binary
     - argv[1] == **g** : pwn local binary with gdb (should be run in tmux)
     - else argv[1] : pwn remote binary
     - argv[-1] == **d** : `context.log_level='debug'`
-    - pwnl: aliased to python solve.py l
-    - pwng: aliased to python solve.py g
-    - pwnr: aliased to python solve.py
-      - If you want to pwn local binary: Run `pwnl` or `py solve.py l`
+    - `pwnl`: aliased to `python solve.py l`
+    - `pwng`: aliased to `python solve.py g`
+    - `pwnr`: aliased to `python solve.py`
+      - If you want to pwn local binary: Run `pwnl` or `./solve.py l`
       - If you want to pwn with gdb without (debug info): Run `pwng d` or `./solve.py g`
       - If you want to pwn with gdb and debug info: Run `pwng d` or `./solve.py g d`
       - If you want to pwn the remote binary with debug info: Run `pwnr` or `./solve.py d`
